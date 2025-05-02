@@ -187,7 +187,7 @@
             });
             
             // Set initial status
-            statusDisplay.textContent = Player ${currentPlayer}'s turn;
+            statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
             statusDisplay.className = 'status';
         }
         
@@ -204,7 +204,7 @@
                 
                 // Check for win
                 if (checkWin()) {
-                    statusDisplay.textContent = Player ${currentPlayer} wins! 🎉;
+                    statusDisplay.textContent = `Player ${currentPlayer} wins! 🎉`;
                     statusDisplay.className = 'status win';
                     gameActive = false;
                     return;
@@ -220,7 +220,7 @@
                 
                 // Switch players
                 currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-                statusDisplay.textContent = Player ${currentPlayer}'s turn;
+                statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
                 statusDisplay.className = 'status';
             }
         }

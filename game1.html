@@ -180,7 +180,7 @@
             <div class="radio-group">
                 <div class="radio-option">
                     <input type="radio" id="user-first" name="firstPlayer" value="user" checked>
-                    <label for="user-first">you go first</label>
+                    <label for="user-first">I go first</label>
                 </div>
                 <div class="radio-option">
                     <input type="radio" id="computer-first" name="firstPlayer" value="computer">
@@ -193,7 +193,16 @@
             <button class="back-btn" id="back-btn">Back</button>
             <button class="start-btn" id="start-btn">Start Game</button>
         </div>
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="window.location.href='tic_tac_toe_2p.html'" 
+                    style="padding: 12px 20px; font-size: 16px; background-color: #6c5ce7; color: white; border: none; border-radius: 6px; cursor: pointer; font-family: 'Anton SC', sans-serif;">
+                Go to 2 Player Game
+            </button>
+        </div>
+        
+
     </div>
+
 
     <script>
         const modeSelect = document.getElementById('mode');

@@ -38,5 +38,247 @@
         <button class="back-btn" id="back-btn">BACK TO SETUP</button>
     </div>
 
+    <script>
+        // Game state
+        let currentPlayer = 'X';
+        let gameState = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let playerSymbol = 'X';
+        let computerSymbol = 'O';
+        let difficulty = 'medium';
+        let computerFirst = false;
+        
+        // DOM elements
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const statusDisplay = document.getElementById('status');
+        const playerSymbolDisplay = document.getElementById('player-symbol');
+        const computerSymbolDisplay = document.getElementById('computer-symbol');
+        const difficultyDisplay = document.getElementById('difficulty-info');
+        const backBtn = document.getElementById('back-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // Load game settings from setup page
+        function loadGameSettings() {
+            const settings = JSON.parse(localStorage.getItem('gameSettings'));
+            if (settings) {
+                difficulty = settings.difficulty;
+                playerSymbol = settings.symbol;
+                computerSymbol = playerSymbol === 'X' ? 'O' : 'X';
+                computerFirst = settings.firstPlayer === 'computer';
+                
+                // Set background
+                if (settings.background) {
+                    if (settings.background.startsWith('url')) {
+                        document.body.style.backgroundImage = settings.background;
+                    } else if (settings.background.startsWith('#')) {
+                        document.body.style.background = settings.background;
+                        document.body.style.backgroundImage = 'none';
+                    } else {
+                        document.body.style.background = '#f0f2f5';
+                        document.body.style.backgroundImage = 'none';
+                    }
+                }
+                
+                // Update UI
+                playerSymbolDisplay.textContent = playerSymbol;
+                computerSymbolDisplay.textContent = computerSymbol;
+                playerSymbolDisplay.className = playerSymbol === 'X' ? 'x' : 'o';
+                computerSymbolDisplay.className = computerSymbol === 'X' ? 'x' : 'o';
+                
+                difficultyDisplay.textContent = `Difficulty: ${capitalizeFirstLetter(difficulty)}`;
+            }
+        }
+        
+        // Initialize game
+        function initializeGame() {
+            gameState = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = computerFirst ? computerSymbol : playerSymbol; // Fixed: Set current player based on who goes first
+            
+            // Clear board
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.className = 'cell';
+            });
+            
+            // Set initial status
+            statusDisplay.textContent = computerFirst ? 'Computer is thinking...' : 'Your turn!';
+            statusDisplay.className = 'status';
+            
+            // If computer goes first, make its move
+            if (computerFirst) {
+                setTimeout(() => {
+                    makeComputerMove();
+                }, 500);
+            }
+        }
+        
+        // Handle cell clicks
+        function handleCellClick(e) {
+            const index = e.target.getAttribute('data-index');
+            
+            // Only proceed if the cell is empty and it's the player's turn
+            if (gameState[index] === '' && gameActive && currentPlayer === playerSymbol) {
+                makeMove(index, playerSymbol);
+                
+                if (checkWin()) {
+                    statusDisplay.textContent = 'You win! 🎉';
+                    statusDisplay.className = 'status win';
+                    gameActive = false;
+                    return;
+                } else if (checkDraw()) {
+                    statusDisplay.textContent = 'Game ended in a draw! 🤝';
+                    statusDisplay.className = 'status draw';
+                    gameActive = false;
+                    return;
+                }
+                
+                // Switch to computer's turn
+                currentPlayer = computerSymbol;
+                statusDisplay.textContent = 'Computer is thinking...';
+                statusDisplay.className = 'status';
+                
+                setTimeout(() => {
+                    makeComputerMove();
+                    
+                    if (checkWin()) {
+                        statusDisplay.textContent = 'Computer wins! 😢';
+                        statusDisplay.className = 'status lose';
+                        gameActive = false;
+                        return;
+                    } else if (checkDraw()) {
+                        statusDisplay.textContent = 'Game ended in a draw! 🤝';
+                        statusDisplay.className = 'status draw';
+                        gameActive = false;
+                        return;
+                    }
+                    
+                    // Switch back to player's turn
+                    currentPlayer = playerSymbol;
+                    statusDisplay.textContent = 'Your turn!';
+                    statusDisplay.className = 'status';
+                }, 500);
+            }
+        }
+        
+        // Make a move
+        function makeMove(index, symbol) {
+            gameState[index] = symbol;
+            cells[index].textContent = symbol;
+            cells[index].classList.add(symbol === 'X' ? 'x' : 'o');
+        }
+        
+        // Computer makes a move
+        function makeComputerMove() {
+            if (!gameActive) return;
+            
+            let move;
+            
+            switch(difficulty) {
+                case 'easy':
+                    move = getRandomMove();
+                    break;
+                case 'medium':
+                    move = getMediumMove();
+                    break;
+                case 'hard':
+                    move = getHardMove();
+                    break;
+                default:
+                    move = getRandomMove();
+            }
+            
+            makeMove(move, computerSymbol);
+        }
+        
+        // Easy AI - random move
+        function getRandomMove() {
+            const emptyCells = gameState.reduce((acc, cell, index) => {
+                if (cell === '') acc.push(index);
+                return acc;
+            }, []);
+            
+            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        }
+        
+        // Medium AI - tries to win or block
+        function getMediumMove() {
+            // Check for winning move
+            for (let i = 0; i < 9; i++) {
+                if (gameState[i] === '') {
+                    const tempState = [...gameState];
+                    tempState[i] = computerSymbol;
+                    if (checkWinForBoard(tempState, computerSymbol)) {
+                        return i;
+                    }
+                }
+            }
+            
+            // Check for blocking move
+            for (let i = 0; i < 9; i++) {
+                if (gameState[i] === '') {
+                    const tempState = [...gameState];
+                    tempState[i] = playerSymbol;
+                    if (checkWinForBoard(tempState, playerSymbol)) {
+                        return i;
+                    }
+                }
+            }
+            
+            // Otherwise random
+            return getRandomMove();
+        }
+        
+        // Hard AI (placeholder)
+        function getHardMove() {
+            return getMediumMove(); // Replace with smarter AI
+        }
+        
+        // Check for win
+        function checkWin() {
+            return checkWinForBoard(gameState, currentPlayer);
+        }
+        
+        // Check for win on any board state
+        function checkWinForBoard(board, player) {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6]             // diagonals
+            ];
+            
+            return winPatterns.some(pattern => {
+                return pattern.every(index => board[index] === player);
+            });
+        }
+        
+        // Check for draw
+        function checkDraw() {
+            return !gameState.includes('') && !checkWin();
+        }
+        
+        // Helper function
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        // Event listeners
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+        
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'game1.html';
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            initializeGame();
+        });
+        
+        // Initialize the game when page loads
+        loadGameSettings();
+        initializeGame();
+    </script>
 </body>
 </html>

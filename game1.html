@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Setup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton+SC&display=swap" rel="stylesheet">
+   
+</head>
+<body>
+    <div class="setup-container">
+        <h1>Tic Tac Toe Game</h1>
+
+        <!-- Game Mode -->
+        <div class="form-group">
+            <label for="mode">Game Mode:</label>
+            <select id="mode">
+                <option value="computer" selected>Play with Computer</option>
+                <option value="2player">Play with 2 Players</option>
+            </select>
+        </div>
+
+        <!-- Difficulty -->
+        <div class="form-group" id="difficulty-group">
+            <label for="difficulty">Difficulty Level:</label>
+            <div class="difficulty-options">
+                <button id="easy-btn" class="difficulty-btn selected">Easy</button>
+                <button id="medium-btn" class="difficulty-btn">Medium</button>
+                <button id="hard-btn" class="difficulty-btn">Hard</button>
+            </div>
+            <input type="hidden" id="difficulty" value="easy">
+        </div>
+
+        <!-- Symbol -->
+        <div class="form-group">
+            <label for="symbol">Choose your symbol:</label>
+            <select id="symbol">
+                <option value="X">X</option>
+                <option value="O">O</option>
+            </select>
+        </div>
+
+        <!-- First Player -->
+        <div class="form-group" id="first-player-group">
+            <label>Who plays first?</label>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="user-first" name="firstPlayer" value="user" checked>
+                    <label for="user-first">I go first</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="computer-first" name="firstPlayer" value="computer">
+                    <label for="computer-first">Computer goes first</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="back-btn" id="back-btn">Back</button>
+            <button class="start-btn" id="start-btn">Start Game</button>
+        </div>
+    </div>
+
+    <script>
+        const modeSelect = document.getElementById('mode');
+        const difficultyGroup = document.getElementById('difficulty-group');
+        const firstPlayerGroup = document.getElementById('first-player-group');
+        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+        const difficultyInput = document.getElementById('difficulty');
+
+        // Handle difficulty button selection
+        difficultyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                difficultyButtons.forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+                difficultyInput.value = button.id.replace('-btn', '');
+            });
+        });
+
+        // Toggle visibility of difficulty and first player settings
+        modeSelect.addEventListener('change', () => {
+            const isComputer = modeSelect.value === 'computer';
+            difficultyGroup.style.display = isComputer ? 'block' : 'none';
+            firstPlayerGroup.style.display = isComputer ? 'block' : 'none';
+        });
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            const mode = document.getElementById('mode').value;
+            const symbol = document.getElementById('symbol').value;
+
+            let gameSettings = {
+                mode: mode,
+                symbol: symbol
+            };
+
+            if (mode === 'computer') {
+                gameSettings.difficulty = difficultyInput.value;
+                gameSettings.firstPlayer = document.querySelector('input[name="firstPlayer"]:checked').value;
+                localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
+                window.location.href = 'tic_tac_toe.html';
+            } else {
+                localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
+                window.location.href = 'tic_tac_toe_2p.html';
+            }
+        });
+
+        // Back button functionality
+        document.getElementById('back-btn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

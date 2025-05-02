@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2 Player Tic Tac Toe</title>
+   
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Tic Tac Toe</h1>
+            <div class="game-info">
+                Player 1: <span id="player1-symbol" class="x">X</span> | 
+                Player 2: <span id="player2-symbol" class="o">O</span>
+            </div>
+        </div>
+        
+        <div class="status" id="status">Player X's turn</div>
+        
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <button class="reset-btn" id="reset-btn">RESET GAME</button>
+        <button class="back-btn" id="back-btn">BACK TO SETUP</button>
+    </div>
+
+    <script>
+        // Game state
+        let currentPlayer = 'X';
+        let gameState = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        
+        // DOM elements
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const statusDisplay = document.getElementById('status');
+        const player1SymbolDisplay = document.getElementById('player1-symbol');
+        const player2SymbolDisplay = document.getElementById('player2-symbol');
+        const backBtn = document.getElementById('back-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // Initialize game
+        function initializeGame() {
+            gameState = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            
+            // Clear board
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.className = 'cell';
+            });
+            
+            // Set initial status
+            statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+            statusDisplay.className = 'status';
+        }
+        
+        // Handle cell clicks
+        function handleCellClick(e) {
+            const index = e.target.getAttribute('data-index');
+            
+            // Only proceed if the cell is empty and game is active
+            if (gameState[index] === '' && gameActive) {
+                // Make move
+                gameState[index] = currentPlayer;
+                e.target.textContent = currentPlayer;
+                e.target.classList.add(currentPlayer === 'X' ? 'x' : 'o');
+                
+                // Check for win
+                if (checkWin()) {
+                    statusDisplay.textContent = `Player ${currentPlayer} wins! 🎉`;
+                    statusDisplay.className = 'status win';
+                    gameActive = false;
+                    return;
+                }
+                
+                // Check for draw
+                if (checkDraw()) {
+                    statusDisplay.textContent = 'Game ended in a draw! 🤝';
+                    statusDisplay.className = 'status draw';
+                    gameActive = false;
+                    return;
+                }
+                
+                // Switch players
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+                statusDisplay.className = 'status';
+            }
+        }
+        
+        // Check for win
+        function checkWin() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6]             // diagonals
+            ];
+            
+            return winPatterns.some(pattern => {
+                return pattern.every(index => gameState[index] === currentPlayer);
+            });
+        }
+        
+        // Check for draw
+        function checkDraw() {
+            return !gameState.includes('') && !checkWin();
+        }
+        
+        // Event listeners
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+        
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'game1.html'; // Change to your setup page
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            initializeGame();
+        });
+        
+        // Initialize the game when page loads
+        initializeGame();
+    </script>
+</body>
+</html>
